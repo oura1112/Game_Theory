@@ -21,6 +21,7 @@ class fictitious_game():
         self.player_num = player_num
         self.action_num = action_num
         self.dist_history = [[[0] for j in range(self.action_num)] for i in range(self.player_num)]
+        #self.init_actions = [ 0 for i in range(player_num)]
         
         
     def Utility(self,actions):
@@ -36,12 +37,18 @@ class fictitious_game():
          #   return 3
         else:
             return 0
+    def empirical_dist_init(self, init_actions):
+        for player in self.players:
+            self.emp_dist_ndiv[player][init_actions[player]] += 1
+        print(self.emp_dist_ndiv)
     
     def empirical_dist(self, episode, player, action_prev):
         
         #print(1)
-        if action_prev == -1:
+        if episode == 0:
+            #print(1)
             return self.emp_dist_ndiv
+            
         else:
             #print(player)
             #print(action_prev)
@@ -106,7 +113,7 @@ class fictitious_game():
         action =np.random.choice(self.actions, 1, list(action_probs))
         return action, action_probs
     
-    def learn_fictitious(self, episode_num = 30, initial_action = [0,0,0]):
+    def learn_fictitious(self, episode_num = 30, initial_action = [1,0,1]):
         
         #print(len(action_history))
         #dist = np.array(dist_history)
@@ -115,12 +122,20 @@ class fictitious_game():
         #emp_dist = copy.deepcopy(self.emp_dist_ndiv)
         #dist_history.append(np.array(emp_dist))
         
+        #init_flag = 1
+        
+        #for action in self.actions:
+         #   self.init_actions[action] = initial_action[action]
+        
+        self.empirical_dist_init(initial_action)
+        
         count = 0
         
         episode_axis = [0]
         
         action_prev = initial_action
-        action = action_prev
+        action = action_prev       
+        
         for episode in range(episode_num):
                 
             for player in self.players:
@@ -131,7 +146,7 @@ class fictitious_game():
                 action_prev[player] = action[player]
                 #empirical_dist = self.empirical_dist(episode+1, player, action_prev)
         
-            if episode % 2 == 0:
+            if episode % 1 == 0:
                 episode_axis.append(episode)
                 emp_dist = np.array(self.emp_dist_ndiv) / (episode+1)
                 for player_i in self.players:
@@ -166,6 +181,11 @@ class fictitious_game():
         player2.plot(episode_axis, self.dist_history[1][1], color="red")
         player3.plot(episode_axis, self.dist_history[2][1], color="green")
         
+        player1.set_ylabel("Pr for player 1")
+        player2.set_ylabel("Pr for player 2")
+        player3.set_ylabel("Pr for player 3")
+        player3.set_xlabel("Learning step")
+        
         plt.show()
         
         fig = plt.figure()
@@ -177,6 +197,11 @@ class fictitious_game():
         player1.plot(episode_axis, self.dist_history[0][0], color="blue")
         player2.plot(episode_axis, self.dist_history[1][0], color="red")
         player3.plot(episode_axis, self.dist_history[2][0], color="green")
+        
+        player1.set_ylabel("Pr for player 1")
+        player2.set_ylabel("Pr for player 2")
+        player3.set_ylabel("Pr for player 3")
+        player3.set_xlabel("Learning step")
         
         plt.show()
         
@@ -191,7 +216,7 @@ class fictitious_game():
         for episode in range(episode_num):
                 
             for player in self.players:               
-                action[player], action_probs = self.policy_log_linear(player, action_prev, tau = 10000)
+                action[player], action_probs = self.policy_log_linear(player, action_prev, tau = 1)
                 #print(action[player])
                 action_prev[player] = action[player]
         
@@ -218,6 +243,11 @@ class fictitious_game():
         player2.plot(episode_axis, self.dist_history[1][1], color="red")
         player3.plot(episode_axis, self.dist_history[2][1], color="green")
         
+        player1.set_ylabel("Pr for player 1")
+        player2.set_ylabel("Pr for player 2")
+        player3.set_ylabel("Pr for player 3")
+        player3.set_xlabel("Learning step")
+        
         plt.show()
         
         fig = plt.figure()
@@ -230,12 +260,17 @@ class fictitious_game():
         player2.plot(episode_axis, self.dist_history[1][0], color="red")
         player3.plot(episode_axis, self.dist_history[2][0], color="green")
         
+        player1.set_ylabel("Pr for player 1")
+        player2.set_ylabel("Pr for player 2")
+        player3.set_ylabel("Pr for player 3")
+        player3.set_xlabel("Learning step")
+        
         plt.show()
 
 if __name__ == "__main__":        
     f_game = fictitious_game(player_num = 3, action_num = 2)
-    #f_game.learn_fictitious()
-    f_game.learn_log_linear()         
+    f_game.learn_fictitious()
+    #f_game.learn_log_linear(episode_num = 100)         
                 
 #util = Utility([2,2,2])
 #print(util)
