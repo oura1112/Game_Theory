@@ -97,23 +97,32 @@ class fictitious_game():
         #utils = np.array(utils)
         return np.argmax(utils)
     
-    def policy_log_linear(self, player, actions_prev, tau=10):
+    def policy_log_linear(self, player, actions_prev, tau_inv):
         action_probs = []
 
         actions_prev_except = copy.copy(actions_prev)
         for action in self.actions:
             del actions_prev_except[player]
             actions_prev_except.insert(player, action)
+            #if actions_prev_ecept == [1,1,1]:
             util = self.Utility(actions_prev_except)
-            action_probs.append( math.exp( (1/tau) * util) )
-                
+            #print(util)
+            action_probs.append( math.exp( tau_inv * util) )
+            #print(math.exp( tau_inv * util))
+            
         action_probs = np.array(action_probs)
         action_probs = action_probs/sum(action_probs)
+        #print(action_probs)
         
-        action =np.random.choice(self.actions, 1, list(action_probs))
+        #if action_probs[0] != 0:
+         #   print(util)
+        
+        #action = np.argmax(action_probs)
+        np.random.seed(42)
+        action = np.random.choice(self.actions, 1, list(action_probs))
         return action, action_probs
     
-    def learn_fictitious(self, episode_num = 30, initial_action = [1,0,1]):
+    def learn_fictitious(self, episode_num = 30, initial_action = [1,1,1]):
         
         #print(len(action_history))
         #dist = np.array(dist_history)
@@ -128,6 +137,9 @@ class fictitious_game():
          #   self.init_actions[action] = initial_action[action]
         
         self.empirical_dist_init(initial_action)
+        
+        for player in self.players:
+            self.dist_history[player][initial_action[player]] = [1]
         
         count = 0
         
@@ -205,7 +217,7 @@ class fictitious_game():
         
         plt.show()
         
-    def learn_log_linear(self, episode_num = 100):
+    def learn_log_linear(self, episode_num = 10000):
         
         count = 1
         
@@ -216,11 +228,15 @@ class fictitious_game():
         for episode in range(episode_num):
                 
             for player in self.players:               
-                action[player], action_probs = self.policy_log_linear(player, action_prev, tau = 1)
-                #print(action[player])
+                action[player], action_probs = self.policy_log_linear(player, action_prev, tau_inv = 100)
+                print(player)
+                print(action[player])
+                print(action_probs)
+                
                 action_prev[player] = action[player]
+                print(action_prev)
         
-                if episode % 2 == 0:
+                if episode % 1 == 0:
                     if player == 0:
                         episode_axis.append(episode)
                     for action_i in self.actions:
@@ -269,8 +285,8 @@ class fictitious_game():
 
 if __name__ == "__main__":        
     f_game = fictitious_game(player_num = 3, action_num = 2)
-    f_game.learn_fictitious()
-    #f_game.learn_log_linear(episode_num = 100)         
+    #f_game.learn_fictitious()
+    f_game.learn_log_linear(episode_num = 100)         
                 
 #util = Utility([2,2,2])
 #print(util)
