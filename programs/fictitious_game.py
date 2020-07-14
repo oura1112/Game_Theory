@@ -122,7 +122,7 @@ class fictitious_game():
         action = np.random.choice(self.actions, 1, list(action_probs))
         return action, action_probs
     
-    def learn_fictitious(self, episode_num = 30, initial_action = [1,1,1]):
+    def learn_fictitious(self, episode_num = 30, initial_action = [0,1,0]):
         
         #print(len(action_history))
         #dist = np.array(dist_history)
@@ -285,8 +285,8 @@ class fictitious_game():
 
 if __name__ == "__main__":        
     f_game = fictitious_game(player_num = 3, action_num = 2)
-    #f_game.learn_fictitious()
-    f_game.learn_log_linear(episode_num = 100)         
+    f_game.learn_fictitious()
+    #f_game.learn_log_linear(episode_num = 100)         
                 
 #util = Utility([2,2,2])
 #print(util)
